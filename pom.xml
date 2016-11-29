@@ -8,15 +8,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <!-- Explicitly declaring the source encoding eliminates the following message: -->
-        <!-- [WARNING] Using platform encoding (UTF-8 actually) to copy filtered
-            resources, i.e. build is platform dependent! -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
-
         <!-- maven plugins versions -->
         <version.cobertura.maven.plugin>2.7</version.cobertura.maven.plugin>
-        <version.maven.compiler.plugin>3.5.1</version.maven.compiler.plugin>
         <version.maven.deploy.plugin>2.8.2</version.maven.deploy.plugin>
         <version.maven.jar.plugin>3.0.2</version.maven.jar.plugin>
         <version.maven.surefire.plugin>2.19.1</version.maven.surefire.plugin>
@@ -85,15 +78,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${version.maven.compiler.plugin}</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${version.maven.jar.plugin}</version>
                 <configuration>
@@ -107,6 +91,7 @@
                 <artifactId>cobertura-maven-plugin</artifactId>
                 <version>${version.cobertura.maven.plugin}</version>
                 <configuration>
+                    <check/>
                     <instrumentation>
                         <ignoreTrivial>true</ignoreTrivial>
                     </instrumentation>
