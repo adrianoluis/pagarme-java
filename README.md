@@ -33,7 +33,7 @@ Simply put the following snippet into your proper build config:
 <dependency>
     <groupId>me.pagar</groupId>
     <artifactId>pagarme-java</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
@@ -48,7 +48,7 @@ repositories {
 
 ##### Dependency
 ```groovy
-compile('me.pagar:pagarme-java:1.2.0') {
+compile('me.pagar:pagarme-java:1.3.0') {
     transitive = true
 }
 ```
@@ -57,14 +57,14 @@ compile('me.pagar:pagarme-java:1.2.0') {
 
 ##### Dependency
 ```
-'me.pagar:pagarme-java:jar:1.2.0'
+'me.pagar:pagarme-java:jar:1.3.0'
 ```
 
 #### Apache Ivy
 
 ##### Dependency
 ```xml
-<dependency org="me.pagar" name="pagarme-java" rev="1.2.0">
+<dependency org="me.pagar" name="pagarme-java" rev="1.3.0">
     <artifact name="pagarme-java" type="jar" />
 </dependency>
 ```
@@ -74,7 +74,7 @@ compile('me.pagar:pagarme-java:1.2.0') {
 ##### Dependency
 ```groovy
 @Grapes(
-  @Grab(group='me.pagar', module='pagarme-java', version='1.2.0')
+  @Grab(group='me.pagar', module='pagarme-java', version='1.3.0')
 )
 ```
 
@@ -82,14 +82,14 @@ compile('me.pagar:pagarme-java:1.2.0') {
 
 ##### Dependency
 ```scala
-libraryDependencies += "me.pagar" % "pagarme-java" % "1.2.0"
+libraryDependencies += "me.pagar" % "pagarme-java" % "1.3.0"
 ```
 
 #### Leiningen
 
 ##### Dependency
 ```clojure
-[me.pagar/pagarme-java "1.2.0"]
+[me.pagar/pagarme-java "1.3.0"]
 ```
 
 ## License
