@@ -29,8 +29,8 @@
         <github.global.server>github</github.global.server>
 
         <!-- maven-compiler-plugin -->
-        <maven.compiler.target>1.5</maven.compiler.target>
-        <maven.compiler.source>1.5</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>1.6</maven.compiler.source>
     </properties>
 
     <repositories>
@@ -138,11 +138,11 @@
                         <version>${version.site.maven.plugin}</version>
                         <configuration>
                             <message>Maven artifacts for ${project.version}</message>               <!-- git commit message -->
-                            <noJekyll>true</noJekyll>                                               <!-- disable webpage processing -->
                             <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>  <!-- matches distribution management repository url above -->
                             <branch>refs/heads/mvn-repo</branch>                                    <!-- remote branch name -->
                             <repositoryOwner>adrianoluis</repositoryOwner>                          <!-- github username  -->
                             <repositoryName>pagarme-java</repositoryName>                           <!-- github repo name -->
+                            <merge>true</merge>
                             <includes>
                                 <include>**/*</include>
                             </includes>
