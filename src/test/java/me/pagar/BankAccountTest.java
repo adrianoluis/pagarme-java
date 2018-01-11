@@ -30,7 +30,7 @@ public class BankAccountTest extends BaseTest {
         bankAccount.setConta("34123");
         bankAccount.setContaDv("1");
         bankAccount.setDocumentType(BankAccount.DocumentType.CPF);
-        bankAccount.setDocumentNumber("30443257817");
+        bankAccount.setDocumentNumber("75068255971");
         bankAccount.setLegalName("JOAO JOSE JOAQUIM");
         bankAccount.save();
     }
