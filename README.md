@@ -1,20 +1,20 @@
-pagarme-java
-=========
+pagarme-java [![Build Status](https://travis-ci.org/adrianoluis/pagarme-java.png?branch=master)](https://travis-ci.org/adrianoluis/pagarme-java)
+============
 
-Pagar.me's Java API
+## SDK Não Oficial do Pagar.Me em Java
 
-[![Build Status](https://travis-ci.org/adrianoluis/pagarme-java.png?branch=master)](https://travis-ci.org/adrianoluis/pagarme-java)
+Esta biblioteca permite a iteração com a api do *Pagar.Me* de forma simples e intuitiva, e segue mesmos moldes já consolidado das bibliotecas oferecidas por eles em outras linguagens. A documentação está disponível em https://adrianoluis.github.io/pagarme-java/.
 
-## Support
-If you have any problem or suggestion please open an issue [here](https://github.com/adrianoluis/pagarme-java/issues).
+## Suporte
+Se você tiver algum problema ou sugestão, abra um ticket [aqui](https://github.com/adrianoluis/pagarme-java/issues).
 
-## Usage
+## Como Usar
 
-Simply put the following snippet into your proper build config:
+Basta colocar o seguinte trecho de código nas configurações de compilação apropriada:
 
 #### Apache Maven
 
-##### Repository
+##### Repositório
 ```xml
 <repositories>
     <repository>
@@ -28,7 +28,7 @@ Simply put the following snippet into your proper build config:
 </repositories>
 ```
 
-##### Dependency
+##### Dependência
 ```xml
 <dependency>
     <groupId>me.pagar</groupId>
@@ -39,14 +39,14 @@ Simply put the following snippet into your proper build config:
 
 #### Gradle/Grails
 
-##### Repository
+##### Repositório
 ```groovy
 repositories {
     maven { url 'https://raw.githubusercontent.com/adrianoluis/pagarme-java/mvn-repo' }
 }
 ```
 
-##### Dependency
+##### Dependência
 ```groovy
 compile('me.pagar:pagarme-java:1.3.0') {
     transitive = true
@@ -55,14 +55,14 @@ compile('me.pagar:pagarme-java:1.3.0') {
 
 #### Apache Buildr
 
-##### Dependency
+##### Dependência
 ```
 'me.pagar:pagarme-java:jar:1.3.0'
 ```
 
 #### Apache Ivy
 
-##### Dependency
+##### Dependência
 ```xml
 <dependency org="me.pagar" name="pagarme-java" rev="1.3.0">
     <artifact name="pagarme-java" type="jar" />
@@ -71,7 +71,7 @@ compile('me.pagar:pagarme-java:1.3.0') {
 
 #### Groovy Grape
 
-##### Dependency
+##### Dependência
 ```groovy
 @Grapes(
   @Grab(group='me.pagar', module='pagarme-java', version='1.3.0')
@@ -80,18 +80,18 @@ compile('me.pagar:pagarme-java:1.3.0') {
 
 #### Scala SBT
 
-##### Dependency
+##### Dependência
 ```scala
 libraryDependencies += "me.pagar" % "pagarme-java" % "1.3.0"
 ```
 
 #### Leiningen
 
-##### Dependency
+##### Dependência
 ```clojure
 [me.pagar/pagarme-java "1.3.0"]
 ```
 
-## License
+## Licença
 
-Check [here](LICENSE).
+Clique [aqui](LICENSE).

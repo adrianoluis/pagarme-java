@@ -1,6 +1,7 @@
 package me.pagar.util;
 
 import com.google.common.base.Strings;
+import me.pagar.PagarMeModel;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -9,16 +10,13 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MapUtils {
 
     private static final String UTF_8 = "UTF-8";
 
-    public static String mapToString(final Map<String, Object> map) {
+    public static String mapToQuery(final Map<String, Object> map) {
         final StringBuilder stringBuilder = new StringBuilder();
 
         for (String key : map.keySet()) {
@@ -27,12 +25,12 @@ public class MapUtils {
                 stringBuilder.append("&");
             }
 
-            final String value = String.valueOf(map.get(key));
+            final Object value = map.get(key);
 
             try {
                 stringBuilder.append(URLEncoder.encode(Strings.nullToEmpty(key), UTF_8));
                 stringBuilder.append("=");
-                stringBuilder.append(URLEncoder.encode(Strings.nullToEmpty(value), UTF_8));
+                stringBuilder.append(null == value ? "" : URLEncoder.encode(Strings.nullToEmpty(String.valueOf(value)), UTF_8));
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException("This method requires UTF-8 encoding support", e);
             }
@@ -66,8 +64,11 @@ public class MapUtils {
         return objectToMap(obj, new ArrayList<String>());
     }
 
-    public static Map<String, Object> objectToMap(final Object obj, final List<String> whitelist) {
-        final Map<String, Object> result = new HashMap<String, Object>();
+    public static Map<String, Object> objectToMap(final Object obj, final List<String> blacklist) {
+        final Map<String, Object> result = new LinkedHashMap<String, Object>();
+
+        // XXX always ignore class and className attribute
+        blacklist.addAll(Arrays.asList("class", "className"));
 
         try {
             final BeanInfo info = Introspector.getBeanInfo(obj.getClass());
@@ -75,15 +76,22 @@ public class MapUtils {
             for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
                 final Method reader = pd.getReadMethod();
 
-                if (reader != null && (whitelist.size() == 0 || whitelist.contains(pd.getName()))) {
-                    result.put(pd.getName(), reader.invoke(obj));
-                }
+                if (reader != null && (blacklist.size() == 0 || !blacklist.contains(pd.getName()))) {
+                    final Object value = reader.invoke(obj);
 
+                    if (null == value ||
+                            value instanceof Number ||
+                            value instanceof CharSequence ||
+                            value instanceof Boolean) {
+                        result.put(pd.getName(), value);
+                    } else {
+                        result.put(pd.getName(), objectToMap(value));
+                    }
+                }
             }
 
         } catch (Exception ignored) {
         }
-
         return result;
     }
 }

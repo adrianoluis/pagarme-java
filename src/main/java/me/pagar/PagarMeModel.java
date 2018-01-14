@@ -1,10 +1,7 @@
 package me.pagar;
 
 import com.google.common.base.CaseFormat;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.pagar.util.BulkAnticipationAdapter;
@@ -230,6 +227,7 @@ public abstract class PagarMeModel<PK extends Serializable> {
             return new GsonBuilder()
                     .registerTypeAdapter(DateTime.class, new DateTimeAdapter())
                     .registerTypeAdapter(BulkAnticipation.class, new BulkAnticipationAdapter())
+                    .setLongSerializationPolicy(LongSerializationPolicy.STRING)
                     .create()
                     .toJson(this);
         } catch (UnsupportedOperationException e) {

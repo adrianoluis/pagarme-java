@@ -48,6 +48,7 @@ public class Balance extends PagarMeModel {
         final PagarMeRequest request = new PagarMeRequest(HttpMethod.GET, String.format("/%s", getClassName()));
         final Balance other = JsonUtils.getAsObject((JsonObject) request.execute(), Balance.class);
         copy(other);
+        flush();
         return other;
     }
 
