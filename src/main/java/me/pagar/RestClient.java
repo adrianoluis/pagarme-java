@@ -70,6 +70,27 @@ public class RestClient {
         httpClient.setSSLSocketFactory(ctx.getSocketFactory());
     }
 
+    private String getUserAgent() {
+        final Package pkg = getClass().getPackage();
+
+        String title = pkg.getImplementationTitle();
+        if (Strings.isNullOrEmpty(title)) {
+            title = "pagarme-java";
+        }
+
+        String version = pkg.getImplementationVersion();
+        if (Strings.isNullOrEmpty(version)) {
+            version = "DEV";
+        }
+
+        final String userAgent = String.format("%s/%s (%s; %s/%s)", title, version,
+                System.getProperty("java.vm.vendor", "Generic"),
+                System.getProperty("java.vm.name", "Java"),
+                System.getProperty("java.version", "1.0"));
+
+        return userAgent;
+    }
+
     public RestClient(final String method, final String url) throws PagarMeException {
         this(method, url, null, null);
     }
@@ -93,8 +114,7 @@ public class RestClient {
             this.parameters = new HashMap<String, Object>();
         }
 
-
-        headers.put("User-Agent", "pagarme-java 1.0.1");
+        headers.put("User-Agent", getUserAgent());
         headers.put("Accept", "application/json");
 
         if (Strings.isNullOrEmpty(url)) {

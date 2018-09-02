@@ -93,6 +93,10 @@
                 <configuration>
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
                     </archive>
                 </configuration>
             </plugin>
