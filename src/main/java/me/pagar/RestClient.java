@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 import me.pagar.util.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -30,6 +32,8 @@ public class RestClient {
     public final static String API_KEY = "api_key";
 
     public final static String AMOUNT = "amount";
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
 
     private HttpsURLConnection httpClient;
 
@@ -102,7 +106,7 @@ public class RestClient {
     @SuppressWarnings("unchecked")
     public RestClient(final String method, final String url, Map<String, Object> parameters,
                       Map<String, String> headers) throws PagarMeException {
-        this.method = method;
+        this.method = method.toUpperCase();
         this.url = url;
         this.parameters = parameters;
 
@@ -143,7 +147,7 @@ public class RestClient {
                         .build(this)
                         .toURL()
                         .openConnection();
-                httpClient.setRequestMethod(this.method.toUpperCase());
+                httpClient.setRequestMethod(this.method);
                 httpClient.setDoInput(true);
                 httpClient.setDoOutput(false);
 
@@ -170,6 +174,7 @@ public class RestClient {
         int responseCode = -1;
 
         try {
+            LOGGER.trace("{} {}", httpClient.getRequestMethod(), httpClient.getURL().toString());
 
             if (method.equalsIgnoreCase(HttpMethod.POST) ||
                     method.equalsIgnoreCase(HttpMethod.PUT) ||
@@ -177,15 +182,19 @@ public class RestClient {
                 httpClient.setDoOutput(true);
 
                 if (parameters.size() > 1) {
-                    final byte[] payload = JsonUtils.getInterpreter().toJson(parameters).getBytes();
+                    final String payload = JsonUtils.getInterpreter().toJson(parameters);
+                    final byte[] rawPayload = payload.getBytes();
                     httpClient.addRequestProperty("Content-Type", "application/json");
-                    httpClient.addRequestProperty("Content-Length", String.valueOf(payload.length));
+
+                    traceRequest(payload);
 
                     final OutputStream os = httpClient.getOutputStream();
-                    os.write(payload);
+                    os.write(rawPayload);
                     os.flush();
                 }
 
+            } else {
+                traceRequest();
             }
 
             try {
@@ -199,6 +208,8 @@ public class RestClient {
             // @see http://web.archive.org/web/20140531042945/https://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
             final Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
             final String response = s.hasNext() ? s.next() : "";
+
+            traceResponse(response);
 
             httpClient.disconnect();
 
@@ -215,4 +226,46 @@ public class RestClient {
 
     }
 
+    private void traceRequest() {
+        traceRequest(null);
+    }
+
+    private void traceRequest(String payload) {
+        final StringBuilder traceLog = new StringBuilder("\nRequest Headers:\n");
+
+        extractHeaders(traceLog, httpClient.getRequestProperties().entrySet().iterator());
+
+        if (!Strings.isNullOrEmpty(payload))
+            traceLog.append("Payload:\n  ")
+                    .append(payload).append("\n");
+        LOGGER.trace(traceLog.toString());
+    }
+
+    private void extractHeaders(StringBuilder traceLog, Iterator<Map.Entry<String, List<String>>> i) {
+        while (i.hasNext()) {
+            final Map.Entry<String, List<String>> entry = i.next();
+            traceLog.append("  ");
+
+            if (!Strings.isNullOrEmpty(entry.getKey()))
+                traceLog.append(entry.getKey())
+                        .append(": ");
+
+            if (entry.getValue().size() == 1) {
+                traceLog.append(entry.getValue().get(0)).append("\n");
+            } else {
+                traceLog.append(entry.getValue()).append("\n");
+            }
+        }
+    }
+
+    private void traceResponse(String body) {
+        final StringBuilder traceLog = new StringBuilder("\nResponse Headers:\n");
+
+        extractHeaders(traceLog, httpClient.getHeaderFields().entrySet().iterator());
+
+        if (!Strings.isNullOrEmpty(body))
+            traceLog.append("Body:\n  ")
+                    .append(body).append("\n");
+        LOGGER.trace(traceLog.toString());
+    }
 }
