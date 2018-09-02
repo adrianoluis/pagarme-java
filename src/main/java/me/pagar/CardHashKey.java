@@ -10,6 +10,14 @@ public class CardHashKey extends PagarMeModel<Integer> {
     @Expose(serialize = false)
     private String publicKey;
 
+    public String getIp() {
+        return ip;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
     public void setIp(String ip) {
         this.ip = ip;
     }

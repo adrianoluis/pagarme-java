@@ -18,9 +18,10 @@
         <version.site.maven.plugin>0.12</version.site.maven.plugin>
 
         <!-- dependencies versions -->
+        <version.commons.codec>1.11</version.commons.codec>
         <version.jersey.common>2.23.1</version.jersey.common>
         <version.guava>19.0</version.guava>
-        <version.gson>2.3.1</version.gson>
+        <version.gson>2.4</version.gson>
         <version.joda.time>2.9.4</version.joda.time>
         <version.inflector>1.2</version.inflector>
         <version.slf4j>1.7.25</version.slf4j>
@@ -51,6 +52,11 @@
     </distributionManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${version.commons.codec}</version>
+        </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-common</artifactId>

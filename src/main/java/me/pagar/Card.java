@@ -1,11 +1,23 @@
 package me.pagar;
 
+import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
 import me.pagar.util.JsonUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 
+import javax.crypto.Cipher;
+import java.net.URLEncoder;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Collection;
+
 public class Card extends PagarMeModel<String> {
+
+    private static final String TEMPLATE_ENCRYPT_QUERY = "card_number=%s&card_holder_name=%s&card_expiration_date=%s&card_cvv=%s\n";
 
     @Expose(deserialize = false)
     @SerializedName("card_hash")
@@ -14,7 +26,8 @@ public class Card extends PagarMeModel<String> {
     @Expose(serialize = false)
     private Brand brand;
 
-    @Expose(serialize = false)
+    @Expose
+    @SerializedName(value = "card_holder_name", alternate = {"holder_name"})
     private String holderName;
 
     @Expose(deserialize = false)
@@ -26,6 +39,10 @@ public class Card extends PagarMeModel<String> {
 
     @Expose(serialize = false)
     private String lastDigits;
+
+    @Expose(deserialize = false)
+    @SerializedName("card_cvv")
+    private String verificationValue;
 
     @Expose(serialize = false)
     private String fingerprint;
@@ -40,7 +57,7 @@ public class Card extends PagarMeModel<String> {
     private Boolean valid;
 
     @Expose
-    @SerializedName("expiration_date")
+    @SerializedName(value = "card_expiration_date", alternate = {"expiration_date"})
     private String expirationDate;
 
     @Expose(serialize = false)
@@ -49,6 +66,23 @@ public class Card extends PagarMeModel<String> {
 
     @Expose(serialize = false)
     private Customer customer;
+
+    public Card() {
+        super();
+    }
+
+    public Card(String id) {
+        this();
+        setId(id);
+    }
+
+    public Card(String number, String holderName, String expirationDate, String verificationValue) {
+        this();
+        this.number = number;
+        this.holderName = holderName;
+        this.expirationDate = expirationDate;
+        this.verificationValue = verificationValue;
+    }
 
     public Brand getBrand() {
         return brand;
@@ -64,6 +98,10 @@ public class Card extends PagarMeModel<String> {
 
     public String getLastDigits() {
         return lastDigits;
+    }
+
+    public String getVerificationValue() {
+        return verificationValue;
     }
 
     public String getFingerprint() {
@@ -105,6 +143,10 @@ public class Card extends PagarMeModel<String> {
         addUnsavedProperty("number");
     }
 
+    public void setVerificationValue(String verificationValue) {
+        this.verificationValue = verificationValue;
+    }
+
     public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
         addUnsavedProperty("customerId");
@@ -115,11 +157,66 @@ public class Card extends PagarMeModel<String> {
         addUnsavedProperty("expirationDate");
     }
 
+    public String encrypt(CardHashKey cardHashKey) {
+
+        if (Strings.isNullOrEmpty(number) || Strings.isNullOrEmpty(holderName) ||
+                Strings.isNullOrEmpty(expirationDate) || Strings.isNullOrEmpty(verificationValue)) {
+            return hash;
+        }
+
+        try {
+            final String publicKeyToken = cardHashKey.getPublicKey()
+                    .replaceAll("\\n", "")
+                    .replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replace("-----END PUBLIC KEY-----", "");
+            final byte[] publicKeyBytes = Base64.decodeBase64(publicKeyToken);
+            final X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+            final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            final PublicKey publicKey = keyFactory.generatePublic(keySpec);
+
+            final Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+            final String query = URLEncoder.encode(String.format(TEMPLATE_ENCRYPT_QUERY,
+                    number,
+                    holderName,
+                    expirationDate,
+                    verificationValue), "UTF-8");
+
+            hash = String.format("%d_%s",
+                    cardHashKey.getId(),
+                    Base64.encodeBase64String(cipher.doFinal(query.getBytes("UTF-8"))));
+        } catch (Exception e) {
+            hash = null;
+        }
+
+        return hash;
+    }
+
     public Card save() throws PagarMeException {
         final Card saved = super.save(getClass());
         copy(saved);
 
         return saved;
+    }
+
+    /**
+     * @see #list(int, int)
+     */
+    public Collection<Card> list() throws PagarMeException {
+        return list(100, 0);
+    }
+
+    /**
+     * @param totalPerPage Retorna <code>n</code> objetos de transação
+     * @param page         Útil para implementação de uma paginação de resultados
+     * @return Uma {@link Collection} contendo objetos de transações, ordenadas a partir da transação realizada mais
+     * recentemente.
+     * @throws PagarMeException
+     */
+    public Collection<Card> list(int totalPerPage, int page) throws PagarMeException {
+        return JsonUtils.getAsList(super.paginate(totalPerPage, page), new TypeToken<Collection<Card>>() {
+        }.getType());
     }
 
     public Card refresh() throws PagarMeException {
