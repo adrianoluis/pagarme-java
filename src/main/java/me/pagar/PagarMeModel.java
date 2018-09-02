@@ -7,8 +7,10 @@ import com.google.gson.annotations.SerializedName;
 import me.pagar.util.BulkAnticipationAdapter;
 import me.pagar.util.DateTimeAdapter;
 import me.pagar.util.JsonUtils;
+import me.pagar.util.LocalDateAdapter;
 import org.atteo.evo.inflector.English;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import javax.ws.rs.HttpMethod;
 import java.io.Serializable;
@@ -225,6 +227,7 @@ public abstract class PagarMeModel<PK extends Serializable> {
     public String toString() {
         try {
             return new GsonBuilder()
+                    .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
                     .registerTypeAdapter(DateTime.class, new DateTimeAdapter())
                     .registerTypeAdapter(BulkAnticipation.class, new BulkAnticipationAdapter())
                     .setLongSerializationPolicy(LongSerializationPolicy.STRING)

@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import me.pagar.BulkAnticipation;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -17,6 +18,7 @@ public class JsonUtils {
     static {
         GSON_DATA_PROVIDER = new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
                 .registerTypeAdapter(DateTime.class, new DateTimeAdapter())
                 .registerTypeAdapter(BulkAnticipation.class, new BulkAnticipationAdapter())
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)

@@ -1,7 +1,6 @@
 package me.pagar;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
+import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +20,7 @@ public class CustomerTest extends BaseTest {
             CUSTOMER_PHONE_DDD = "11",
             CUSTOMER_PHONE_NUMBER = "55284132";
 
-    private final DateTime CUSTOMER_BORN_AT = DateTime.parse("1981-03-23");
+    private final LocalDate CUSTOMER_BORN_AT = LocalDate.parse("1981-03-23");
 
     private Customer customer;
 

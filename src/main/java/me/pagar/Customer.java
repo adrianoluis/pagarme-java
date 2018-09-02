@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import me.pagar.util.JsonUtils;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +28,7 @@ public class Customer extends PagarMeModel<Integer> {
 
     @Expose
     @SerializedName("born_at")
-    private DateTime bornAt;
+    private LocalDate bornAt;
 
     @Expose(deserialize = false)
     private Address address;
@@ -74,7 +74,7 @@ public class Customer extends PagarMeModel<Integer> {
         return gender;
     }
 
-    public DateTime getBornAt() {
+    public LocalDate getBornAt() {
         return bornAt;
     }
 
@@ -111,7 +111,7 @@ public class Customer extends PagarMeModel<Integer> {
         addUnsavedProperty("gender");
     }
 
-    public void setBornAt(final DateTime bornAt) {
+    public void setBornAt(final LocalDate bornAt) {
         this.bornAt = bornAt;
         addUnsavedProperty("bornAt");
     }
