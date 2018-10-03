@@ -1,7 +1,6 @@
 package me.pagar.util;
 
 import com.google.common.base.Strings;
-import me.pagar.PagarMeModel;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;

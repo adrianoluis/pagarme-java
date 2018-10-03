@@ -23,13 +23,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class RestClient {
 
-    public final static String API_KEY = "api_key";
+    private final static String API_KEY = "api_key";
 
     public final static String AMOUNT = "amount";
 
@@ -42,10 +40,6 @@ public class RestClient {
     private String url;
 
     private Map<String, Object> parameters;
-
-    private int count;
-
-    private boolean live;
 
     private InputStream is;
 

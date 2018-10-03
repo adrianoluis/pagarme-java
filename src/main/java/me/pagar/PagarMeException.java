@@ -28,9 +28,8 @@ public class PagarMeException extends Exception {
     @SuppressWarnings("unchecked")
     public static PagarMeException buildWithError(final PagarMeResponse response) {
 
-        if (null == response) {
+        if (null == response)
             return null;
-        }
 
         final JsonObject responseError = JsonUtils.getInterpreter().fromJson(response.getBody(), JsonObject.class);
 
@@ -38,8 +37,7 @@ public class PagarMeException extends Exception {
 
         final StringBuilder joinedMessages = new StringBuilder();
 
-        int i;
-        for (i = 0; i < errors.size(); i++) {
+        for (int i = 0; i < errors.size(); i++) {
             final JsonObject error = errors.get(i).getAsJsonObject();
             joinedMessages
                     .append(error.get("message").getAsString())
@@ -67,23 +65,18 @@ public class PagarMeException extends Exception {
     public PagarMeException(final String message, final JsonObject responseError) {
         super(message);
 
-        if (null != responseError) {
-            this.url = responseError.get("url").getAsString();
-            this.method = responseError.get("method").getAsString();
+        if (null == responseError || !responseError.has("errors"))
+            return;
 
-            if (responseError.has("errors")) {
-                final JsonArray errors = responseError.get("errors").getAsJsonArray();
+        this.url = responseError.get("url").getAsString();
+        this.method = responseError.get("method").getAsString();
 
-                int i;
-                for (i = 0; i < errors.size(); i++) {
-                    final JsonObject error = errors.get(i).getAsJsonObject();
-                    this.errors.add(new PagarMeError(error));
-                }
+        final JsonArray errors = responseError.get("errors").getAsJsonArray();
 
-            }
-
+        for (int i = 0; i < errors.size(); i++) {
+            final JsonObject error = errors.get(i).getAsJsonObject();
+            this.errors.add(new PagarMeError(error));
         }
-
     }
 
     public Collection<PagarMeError> getErrors() {

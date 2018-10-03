@@ -9,7 +9,7 @@ import java.util.Collection;
 
 public class TransactionTest extends BaseTest {
 
-    final int TRANSACTION_ID = 598075;
+    private final int TRANSACTION_ID = 598075;
 
     private Transaction transaction;
 

@@ -2,12 +2,10 @@ package me.pagar.util;
 
 import me.pagar.Balance;
 import me.pagar.BaseTest;
-import me.pagar.Transaction;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

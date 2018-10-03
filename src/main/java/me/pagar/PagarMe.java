@@ -80,6 +80,5 @@ public abstract class PagarMe {
         } catch (Exception e) {
             return false;
         }
-
     }
 }

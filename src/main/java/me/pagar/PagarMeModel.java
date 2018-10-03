@@ -107,6 +107,7 @@ public abstract class PagarMeModel<PK extends Serializable> {
 
     /**
      * Obtem um modelo pelo id.
+     *
      * @param id Identificação do Modelo
      * @return A representação do estado do modelo
      * @throws PagarMeException
@@ -117,7 +118,6 @@ public abstract class PagarMeModel<PK extends Serializable> {
     }
 
     /**
-     *
      * @param totalPerPage
      * @return
      * @throws PagarMeException
@@ -127,7 +127,6 @@ public abstract class PagarMeModel<PK extends Serializable> {
     }
 
     /**
-     *
      * @param totalPerPage
      * @param page
      * @return
@@ -156,7 +155,7 @@ public abstract class PagarMeModel<PK extends Serializable> {
      * Persiste o estado do modelo no servidor.
      *
      * @param clazz {@link Class} do Modelo
-     * @param <T> Classe do Modelo
+     * @param <T>   Classe do Modelo
      * @return O Modelo com os dados persistidos no servidor.
      * @throws PagarMeException
      */
