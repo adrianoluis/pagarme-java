@@ -4,262 +4,227 @@ import com.google.common.base.Strings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 import me.pagar.util.JsonUtils;
+import me.pagar.util.PagarMeSSLSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.util.*;
 
 public class RestClient {
 
-    private final static String API_KEY = "api_key";
+	private final static String API_KEY = "api_key";
 
-    public final static String AMOUNT = "amount";
+	public final static String AMOUNT = "amount";
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
 
-    private HttpsURLConnection httpClient;
+	private HttpsURLConnection httpClient;
 
-    private String method;
+	private String method;
 
-    private String url;
+	private String url;
 
-    private Map<String, Object> parameters;
+	private Map<String, Object> parameters;
 
-    private InputStream is;
+	private InputStream is;
 
-    private void setupSecureConnection(final HttpsURLConnection httpClient) throws KeyStoreException,
-            IOException, CertificateException, NoSuchAlgorithmException, KeyManagementException {
-        final URL certFile = Thread.currentThread().getContextClassLoader()
-                .getResource("pagarme.crt");
+	private String getUserAgent() {
+		final Package pkg = getClass().getPackage();
 
-        if (null == certFile) {
-            return;
-        }
+		String title = pkg.getImplementationTitle();
+		if (Strings.isNullOrEmpty(title)) {
+			title = "pagarme-java";
+		}
 
-        final Certificate cert = CertificateFactory.getInstance("X.509")
-                .generateCertificate(certFile.openStream());
+		String version = pkg.getImplementationVersion();
+		if (Strings.isNullOrEmpty(version)) {
+			version = "DEV";
+		}
 
-        final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(null, null);
-        keyStore.setCertificateEntry("pagarme", cert);
+		final String userAgent = String.format("%s/%s (%s; %s/%s)", title, version,
+				System.getProperty("java.vm.vendor", "Generic"),
+				System.getProperty("java.vm.name", "Java"),
+				System.getProperty("java.version", "1.0"));
 
-        final TrustManagerFactory tmf = TrustManagerFactory.getInstance("X.509");
-        tmf.init(keyStore);
+		return userAgent;
+	}
 
-        final SSLContext ctx = SSLContext.getInstance("TLS");
-        ctx.init(null, tmf.getTrustManagers(), null);
+	public RestClient(final String method, final String url) throws PagarMeException {
+		this(method, url, null, null);
+	}
 
-        httpClient.setSSLSocketFactory(ctx.getSocketFactory());
-    }
+	public RestClient(final String method, final String url, Map<String, Object> parameters) throws PagarMeException {
+		this(method, url, parameters, null);
+	}
 
-    private String getUserAgent() {
-        final Package pkg = getClass().getPackage();
+	@SuppressWarnings("unchecked")
+	public RestClient(final String method, final String url, Map<String, Object> parameters,
+					  Map<String, String> headers) throws PagarMeException {
+		this.method = method.toUpperCase();
+		this.url = url;
+		this.parameters = parameters;
 
-        String title = pkg.getImplementationTitle();
-        if (Strings.isNullOrEmpty(title)) {
-            title = "pagarme-java";
-        }
+		if (null == headers) {
+			headers = new HashMap<String, String>();
+		}
 
-        String version = pkg.getImplementationVersion();
-        if (Strings.isNullOrEmpty(version)) {
-            version = "DEV";
-        }
+		if (null == this.parameters) {
+			this.parameters = new HashMap<String, Object>();
+		}
 
-        final String userAgent = String.format("%s/%s (%s; %s/%s)", title, version,
-                System.getProperty("java.vm.vendor", "Generic"),
-                System.getProperty("java.vm.name", "Java"),
-                System.getProperty("java.version", "1.0"));
+		headers.put("User-Agent", getUserAgent());
+		headers.put("Accept", "application/json");
 
-        return userAgent;
-    }
+		if (Strings.isNullOrEmpty(url)) {
+			throw new PagarMeException("You must set the URL to make a request.");
+		}
 
-    public RestClient(final String method, final String url) throws PagarMeException {
-        this(method, url, null, null);
-    }
+		if (!Strings.isNullOrEmpty(method)) {
 
-    public RestClient(final String method, final String url, Map<String, Object> parameters) throws PagarMeException {
-        this(method, url, parameters, null);
-    }
+			try {
+				final UriBuilder builder = UriBuilder.fromPath(this.url);
+				builder.queryParam(API_KEY, PagarMe.getApiKey());
 
-    @SuppressWarnings("unchecked")
-    public RestClient(final String method, final String url, Map<String, Object> parameters,
-                      Map<String, String> headers) throws PagarMeException {
-        this.method = method.toUpperCase();
-        this.url = url;
-        this.parameters = parameters;
+				if (this.parameters.containsKey(AMOUNT) && this.parameters.size() == 1) {
+					builder.queryParam(AMOUNT, this.parameters.remove(AMOUNT));
+				}
 
-        if (null == headers) {
-            headers = new HashMap<String, String>();
-        }
+				if (method.equalsIgnoreCase(HttpMethod.GET)) {
 
-        if (null == this.parameters) {
-            this.parameters = new HashMap<String, Object>();
-        }
+					for (Map.Entry<String, Object> entry : this.parameters.entrySet()) {
+						builder.queryParam(entry.getKey(), entry.getValue());
+					}
 
-        headers.put("User-Agent", getUserAgent());
-        headers.put("Accept", "application/json");
+				}
 
-        if (Strings.isNullOrEmpty(url)) {
-            throw new PagarMeException("You must set the URL to make a request.");
-        }
+				httpClient = (HttpsURLConnection) builder
+						.build(this)
+						.toURL()
+						.openConnection();
+				httpClient.setRequestMethod(this.method);
+				httpClient.setDoInput(true);
+				httpClient.setDoOutput(false);
+				httpClient.setSSLSocketFactory(new PagarMeSSLSocketFactory());
 
-        if (!Strings.isNullOrEmpty(method)) {
+				if (headers.size() > 0) {
 
-            try {
-                final UriBuilder builder = UriBuilder.fromPath(this.url);
-                builder.queryParam(API_KEY, PagarMe.getApiKey());
+					for (Map.Entry<String, String> entry : headers.entrySet()) {
+						httpClient.addRequestProperty(entry.getKey(), entry.getValue());
+					}
 
-                if (this.parameters.containsKey(AMOUNT) && this.parameters.size() == 1) {
-                    builder.queryParam(AMOUNT, this.parameters.remove(AMOUNT));
-                }
+				}
 
-                if (method.equalsIgnoreCase(HttpMethod.GET)) {
+			} catch (Exception e) {
+				throw PagarMeException.buildWithError(e);
+			}
 
-                    for (Map.Entry<String, Object> entry : this.parameters.entrySet()) {
-                        builder.queryParam(entry.getKey(), entry.getValue());
-                    }
+		}
 
-                }
+	}
 
-                httpClient = (HttpsURLConnection) builder
-                        .build(this)
-                        .toURL()
-                        .openConnection();
-                httpClient.setRequestMethod(this.method);
-                httpClient.setDoInput(true);
-                httpClient.setDoOutput(false);
+	public PagarMeResponse execute() throws PagarMeException {
+		final StringBuilder builder = new StringBuilder();
+		int responseCode = -1;
 
-                setupSecureConnection(httpClient);
+		try {
+			LOGGER.trace("{} {}", httpClient.getRequestMethod(), httpClient.getURL().toString());
 
-                if (headers.size() > 0) {
+			if (method.equalsIgnoreCase(HttpMethod.POST) ||
+					method.equalsIgnoreCase(HttpMethod.PUT) ||
+					method.equalsIgnoreCase(HttpMethod.DELETE)) {
+				httpClient.setDoOutput(true);
 
-                    for (Map.Entry<String, String> entry : headers.entrySet()) {
-                        httpClient.addRequestProperty(entry.getKey(), entry.getValue());
-                    }
+				if (parameters.size() > 1) {
+					final String payload = JsonUtils.getInterpreter().toJson(parameters);
+					final byte[] rawPayload = payload.getBytes();
+					httpClient.addRequestProperty("Content-Type", "application/json");
 
-                }
+					traceRequest(payload);
 
-            } catch (Exception e) {
-                throw PagarMeException.buildWithError(e);
-            }
+					final OutputStream os = httpClient.getOutputStream();
+					os.write(rawPayload);
+					os.flush();
+				}
 
-        }
+			} else {
+				traceRequest();
+			}
 
-    }
+			try {
+				is = httpClient.getInputStream();
+				responseCode = httpClient.getResponseCode();
+			} catch (IOException e) {
+				is = httpClient.getErrorStream();
+				responseCode = httpClient.getResponseCode();
+			}
 
-    public PagarMeResponse execute() throws PagarMeException {
-        final StringBuilder builder = new StringBuilder();
-        int responseCode = -1;
+			// @see http://web.archive.org/web/20140531042945/https://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
+			final Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
+			final String response = s.hasNext() ? s.next() : "";
 
-        try {
-            LOGGER.trace("{} {}", httpClient.getRequestMethod(), httpClient.getURL().toString());
+			traceResponse(response);
 
-            if (method.equalsIgnoreCase(HttpMethod.POST) ||
-                    method.equalsIgnoreCase(HttpMethod.PUT) ||
-                    method.equalsIgnoreCase(HttpMethod.DELETE)) {
-                httpClient.setDoOutput(true);
+			httpClient.disconnect();
 
-                if (parameters.size() > 1) {
-                    final String payload = JsonUtils.getInterpreter().toJson(parameters);
-                    final byte[] rawPayload = payload.getBytes();
-                    httpClient.addRequestProperty("Content-Type", "application/json");
+			return new PagarMeResponse(responseCode,
+					JsonUtils.getInterpreter().fromJson(response, JsonElement.class));
+		} catch (Exception e) {
 
-                    traceRequest(payload);
+			if (e instanceof JsonSyntaxException) {
+				throw new PagarMeException(responseCode, url, method, builder.toString());
+			}
 
-                    final OutputStream os = httpClient.getOutputStream();
-                    os.write(rawPayload);
-                    os.flush();
-                }
+			throw PagarMeException.buildWithError(e);
+		}
 
-            } else {
-                traceRequest();
-            }
+	}
 
-            try {
-                is = httpClient.getInputStream();
-                responseCode = httpClient.getResponseCode();
-            } catch (IOException e) {
-                is = httpClient.getErrorStream();
-                responseCode = httpClient.getResponseCode();
-            }
+	private void traceRequest() {
+		traceRequest(null);
+	}
 
-            // @see http://web.archive.org/web/20140531042945/https://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
-            final Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
-            final String response = s.hasNext() ? s.next() : "";
+	private void traceRequest(String payload) {
+		final StringBuilder traceLog = new StringBuilder("\nRequest Headers:\n");
 
-            traceResponse(response);
+		extractHeaders(traceLog, httpClient.getRequestProperties().entrySet().iterator());
 
-            httpClient.disconnect();
+		if (!Strings.isNullOrEmpty(payload))
+			traceLog.append("Payload:\n  ")
+					.append(payload).append("\n");
+		LOGGER.trace(traceLog.toString());
+	}
 
-            return new PagarMeResponse(responseCode,
-                    JsonUtils.getInterpreter().fromJson(response, JsonElement.class));
-        } catch (Exception e) {
+	private void extractHeaders(StringBuilder traceLog, Iterator<Map.Entry<String, List<String>>> i) {
+		while (i.hasNext()) {
+			final Map.Entry<String, List<String>> entry = i.next();
+			traceLog.append("  ");
 
-            if (e instanceof JsonSyntaxException) {
-                throw new PagarMeException(responseCode, url, method, builder.toString());
-            }
+			if (!Strings.isNullOrEmpty(entry.getKey()))
+				traceLog.append(entry.getKey())
+						.append(": ");
 
-            throw PagarMeException.buildWithError(e);
-        }
+			if (entry.getValue().size() == 1) {
+				traceLog.append(entry.getValue().get(0)).append("\n");
+			} else {
+				traceLog.append(entry.getValue()).append("\n");
+			}
+		}
+	}
 
-    }
+	private void traceResponse(String body) {
+		final StringBuilder traceLog = new StringBuilder("\nResponse Headers:\n");
 
-    private void traceRequest() {
-        traceRequest(null);
-    }
+		extractHeaders(traceLog, httpClient.getHeaderFields().entrySet().iterator());
 
-    private void traceRequest(String payload) {
-        final StringBuilder traceLog = new StringBuilder("\nRequest Headers:\n");
-
-        extractHeaders(traceLog, httpClient.getRequestProperties().entrySet().iterator());
-
-        if (!Strings.isNullOrEmpty(payload))
-            traceLog.append("Payload:\n  ")
-                    .append(payload).append("\n");
-        LOGGER.trace(traceLog.toString());
-    }
-
-    private void extractHeaders(StringBuilder traceLog, Iterator<Map.Entry<String, List<String>>> i) {
-        while (i.hasNext()) {
-            final Map.Entry<String, List<String>> entry = i.next();
-            traceLog.append("  ");
-
-            if (!Strings.isNullOrEmpty(entry.getKey()))
-                traceLog.append(entry.getKey())
-                        .append(": ");
-
-            if (entry.getValue().size() == 1) {
-                traceLog.append(entry.getValue().get(0)).append("\n");
-            } else {
-                traceLog.append(entry.getValue()).append("\n");
-            }
-        }
-    }
-
-    private void traceResponse(String body) {
-        final StringBuilder traceLog = new StringBuilder("\nResponse Headers:\n");
-
-        extractHeaders(traceLog, httpClient.getHeaderFields().entrySet().iterator());
-
-        if (!Strings.isNullOrEmpty(body))
-            traceLog.append("Body:\n  ")
-                    .append(body).append("\n");
-        LOGGER.trace(traceLog.toString());
-    }
+		if (!Strings.isNullOrEmpty(body))
+			traceLog.append("Body:\n  ")
+					.append(body).append("\n");
+		LOGGER.trace(traceLog.toString());
+	}
 }

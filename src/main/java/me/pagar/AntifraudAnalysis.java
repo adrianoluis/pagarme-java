@@ -8,66 +8,66 @@ import java.math.BigDecimal;
 
 public class AntifraudAnalysis extends PagarMeModel<Integer> {
 
-    @Expose(serialize = false)
-    private Integer cost;
+	@Expose(serialize = false)
+	private Integer cost;
 
-    @Expose(serialize = false)
-    private String name;
+	@Expose(serialize = false)
+	private String name;
 
-    @Expose(serialize = false)
-    @SerializedName("date_updated")
-    private DateTime updatedAt;
+	@Expose(serialize = false)
+	@SerializedName("date_updated")
+	private DateTime updatedAt;
 
-    @Expose(serialize = false)
-    private BigDecimal score;
+	@Expose(serialize = false)
+	private BigDecimal score;
 
-    @Expose(serialize = false)
-    private Status status;
+	@Expose(serialize = false)
+	private Status status;
 
-    public Integer getCost() {
-        return cost;
-    }
+	public Integer getCost() {
+		return cost;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public DateTime getUpdatedAt() {
-        return updatedAt;
-    }
+	public DateTime getUpdatedAt() {
+		return updatedAt;
+	}
 
-    public BigDecimal getScore() {
-        return score;
-    }
+	public BigDecimal getScore() {
+		return score;
+	}
 
-    public Status getStatus() {
-        return status;
-    }
+	public Status getStatus() {
+		return status;
+	}
 
-    @Override
-    public void setId(Integer id) {
-        throw new UnsupportedOperationException("Not allowed.");
-    }
+	@Override
+	public void setId(Integer id) {
+		throw new UnsupportedOperationException("Not allowed.");
+	}
 
-    @Override
-    public void setClassName(String className) {
-        throw new UnsupportedOperationException("Not allowed.");
-    }
+	@Override
+	public void setClassName(String className) {
+		throw new UnsupportedOperationException("Not allowed.");
+	}
 
-    public enum Status {
+	public enum Status {
 
-        @SerializedName("approved")
-        APPROVED,
+		@SerializedName("approved")
+		APPROVED,
 
-        @SerializedName("failed")
-        FAILED,
+		@SerializedName("failed")
+		FAILED,
 
-        @SerializedName("processing")
-        PROCESSING,
+		@SerializedName("processing")
+		PROCESSING,
 
-        @SerializedName("refused")
-        REFUSED
+		@SerializedName("refused")
+		REFUSED
 
-    }
+	}
 
 }

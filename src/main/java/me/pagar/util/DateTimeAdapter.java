@@ -10,23 +10,23 @@ import java.lang.reflect.Type;
 
 public class DateTimeAdapter implements JsonDeserializer<DateTime>, JsonSerializer<DateTime> {
 
-    private final DateTimeFormatter formatter;
+	private final DateTimeFormatter formatter;
 
-    public DateTimeAdapter() {
-        this.formatter = ISODateTimeFormat
-                .dateOptionalTimeParser()
-                .withZoneUTC();
-    }
+	public DateTimeAdapter() {
+		this.formatter = ISODateTimeFormat
+				.dateOptionalTimeParser()
+				.withZoneUTC();
+	}
 
-    @Override
-    public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        final String dateTime = json.getAsString();
-        return Strings.isNullOrEmpty(dateTime) ? null : formatter.parseDateTime(dateTime);
-    }
+	@Override
+	public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+		final String dateTime = json.getAsString();
+		return Strings.isNullOrEmpty(dateTime) ? null : formatter.parseDateTime(dateTime);
+	}
 
-    @Override
-    public JsonElement serialize(DateTime src, Type typeOfSrc, JsonSerializationContext context) {
-        return src == null ? null : new JsonPrimitive(src.toString());
-    }
+	@Override
+	public JsonElement serialize(DateTime src, Type typeOfSrc, JsonSerializationContext context) {
+		return src == null ? null : new JsonPrimitive(src.toString());
+	}
 
 }

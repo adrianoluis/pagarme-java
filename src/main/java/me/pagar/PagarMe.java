@@ -8,77 +8,94 @@ import java.util.Formatter;
 
 public abstract class PagarMe {
 
-    public static final String ENDPOINT = "https://api.pagar.me";
+	public static final String ENDPOINT = "https://api.pagar.me";
 
-    public static final String API_VERSION = "1";
+	public static final String API_VERSION = "1";
 
-    public static final String HMAC_MD5_ALGORITHM = "HmacMD5";
+	public static final String HMAC_MD5_ALGORITHM = "HmacMD5";
 
-    public static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+	public static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
 
-    public static final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
+	public static final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
 
-    public static final String SHA1_ALGORITHM = "sha1";
+	public static final String SHA1_ALGORITHM = "sha1";
 
-    public static final String SHA256_ALGORITHM = "sha256";
+	public static final String SHA256_ALGORITHM = "sha256";
 
-    private static String apiKey;
+	private static String apiKey;
 
-    public static String fullApiUrl(final String path) {
-        return ENDPOINT.concat("/")
-                .concat(API_VERSION)
-                .concat(path);
-    }
+	private static boolean sslPinningEnabled;
 
-    public static String getApiKey() {
-        return apiKey;
-    }
+	public static String fullApiUrl(final String path) {
+		return ENDPOINT.concat("/")
+				.concat(API_VERSION)
+				.concat(path);
+	}
 
-    public static void init(String apiKey) {
-        PagarMe.apiKey = apiKey;
-    }
+	public static String getApiKey() {
+		return apiKey;
+	}
 
-    public static boolean validateRequestSignature(final String payload, final String signature) {
+	public static boolean isSslPinningEnabled() {
+		return sslPinningEnabled;
+	}
 
-        // failsafe
-        if (Strings.isNullOrEmpty(signature)) {
-            return true;
-        }
+	public static void init(String apiKey) {
+		init(apiKey, true);
+	}
 
-        final String[] parts = signature.split("=");
+	/**
+	 * Configura o cliente padrão para comunicação com a API.
+	 *
+	 * @param apiKey            API Key disponível no dashboard
+	 * @param sslPinningEnabled Valida o certificado SSL do host com o embarcado na biblioteca
+	 */
+	public static void init(String apiKey, boolean sslPinningEnabled) {
+		PagarMe.apiKey = apiKey;
+		PagarMe.sslPinningEnabled = sslPinningEnabled;
+	}
 
-        try {
-            // get an hmac_sha1 key from the raw key bytes
-            final SecretKeySpec signingKey = new SecretKeySpec(apiKey.getBytes(), parts[0]);
+	public static boolean validateRequestSignature(final String payload, final String signature) {
 
-            String algorithm = HMAC_MD5_ALGORITHM;
+		// failsafe
+		if (Strings.isNullOrEmpty(signature)) {
+			return true;
+		}
 
-            if (parts[0].equalsIgnoreCase(SHA1_ALGORITHM)) {
-                algorithm = HMAC_SHA1_ALGORITHM;
-            } else if (parts[0].equalsIgnoreCase(SHA256_ALGORITHM)) {
-                algorithm = HMAC_SHA256_ALGORITHM;
-            }
+		final String[] parts = signature.split("=");
 
-            // get an hmac_sha1 Mac instance and initialize with the signing key
-            final Mac mac = Mac.getInstance(algorithm);
-            mac.init(signingKey);
+		try {
+			// get an hmac_sha1 key from the raw key bytes
+			final SecretKeySpec signingKey = new SecretKeySpec(apiKey.getBytes(), parts[0]);
 
-            // compute the hmac on input data bytes
-            final byte[] rawHmac = mac.doFinal(payload.getBytes());
+			String algorithm = HMAC_MD5_ALGORITHM;
 
-            final Formatter formatter = new Formatter();
+			if (parts[0].equalsIgnoreCase(SHA1_ALGORITHM)) {
+				algorithm = HMAC_SHA1_ALGORITHM;
+			} else if (parts[0].equalsIgnoreCase(SHA256_ALGORITHM)) {
+				algorithm = HMAC_SHA256_ALGORITHM;
+			}
 
-            // right transform into sha1 hash
-            for (byte b : rawHmac) {
-                formatter.format("%02x", 0xff & b);
-            }
+			// get an hmac_sha1 Mac instance and initialize with the signing key
+			final Mac mac = Mac.getInstance(algorithm);
+			mac.init(signingKey);
 
-            final String hash = formatter.toString();
-            formatter.close();
+			// compute the hmac on input data bytes
+			final byte[] rawHmac = mac.doFinal(payload.getBytes());
 
-            return (parts.length == 2) && (hash.equals(parts[1]));
-        } catch (Exception e) {
-            return false;
-        }
-    }
+			final Formatter formatter = new Formatter();
+
+			// right transform into sha1 hash
+			for (byte b : rawHmac) {
+				formatter.format("%02x", 0xff & b);
+			}
+
+			final String hash = formatter.toString();
+			formatter.close();
+
+			return (parts.length == 2) && (hash.equals(parts[1]));
+		} catch (Exception e) {
+			return false;
+		}
+	}
 }

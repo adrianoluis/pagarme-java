@@ -6,14 +6,14 @@
 
     <groupId>me.pagar</groupId>
     <artifactId>pagarme-java</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
 
     <properties>
         <!-- maven plugins versions -->
         <version.cobertura.maven.plugin>2.7</version.cobertura.maven.plugin>
         <version.maven.deploy.plugin>2.8.2</version.maven.deploy.plugin>
-        <version.maven.jar.plugin>3.0.2</version.maven.jar.plugin>
+        <version.maven.jar.plugin>2.6</version.maven.jar.plugin>
         <version.maven.surefire.plugin>2.19.1</version.maven.surefire.plugin>
         <version.site.maven.plugin>0.12</version.site.maven.plugin>
 
@@ -26,6 +26,7 @@
         <version.inflector>1.2</version.inflector>
         <version.slf4j>1.7.25</version.slf4j>
         <version.junit>4.12</version.junit>
+        <version.bouncycastle>1.60</version.bouncycastle>
 
         <!-- github maven plugin setup -->
         <github.global.server>github</github.global.server>
@@ -92,6 +93,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>${version.slf4j}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>${version.bouncycastle}</version>
             <optional>true</optional>
         </dependency>
         <dependency>

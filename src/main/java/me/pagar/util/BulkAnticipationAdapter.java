@@ -13,26 +13,26 @@ import java.util.Map;
  */
 public class BulkAnticipationAdapter implements JsonSerializer<BulkAnticipation> {
 
-    @Override
-    public JsonElement serialize(BulkAnticipation src, Type type, JsonSerializationContext jsonSerializationContext) {
+	@Override
+	public JsonElement serialize(BulkAnticipation src, Type type, JsonSerializationContext jsonSerializationContext) {
 
-        if (src == null) {
-            return null;
-        }
+		if (src == null) {
+			return null;
+		}
 
-        final Gson gson = new GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .create();
-        final String json = gson.toJson(src);
+		final Gson gson = new GsonBuilder()
+				.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+				.create();
+		final String json = gson.toJson(src);
 
-        final Map<String, Object> map = gson.fromJson(json, new TypeToken<HashMap<String, Object>>() {
-        }.getType());
+		final Map<String, Object> map = gson.fromJson(json, new TypeToken<HashMap<String, Object>>() {
+		}.getType());
 
-        if (null != src.getPaymentDate()) {
-            map.put("payment_date", src.getPaymentDate().getMillis());
-        }
+		if (null != src.getPaymentDate()) {
+			map.put("payment_date", src.getPaymentDate().getMillis());
+		}
 
-        return JsonUtils.getInterpreter().toJsonTree(map);
-    }
+		return JsonUtils.getInterpreter().toJsonTree(map);
+	}
 
 }
