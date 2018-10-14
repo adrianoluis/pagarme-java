@@ -13,7 +13,7 @@
         <!-- maven plugins versions -->
         <version.cobertura.maven.plugin>2.7</version.cobertura.maven.plugin>
         <version.maven.deploy.plugin>2.8.2</version.maven.deploy.plugin>
-        <version.maven.jar.plugin>2.6</version.maven.jar.plugin>
+        <version.maven.jar.plugin>3.0.2</version.maven.jar.plugin>
         <version.maven.surefire.plugin>2.19.1</version.maven.surefire.plugin>
         <version.site.maven.plugin>0.12</version.site.maven.plugin>
 

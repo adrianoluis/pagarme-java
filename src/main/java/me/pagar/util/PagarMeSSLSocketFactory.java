@@ -196,7 +196,7 @@ public class PagarMeSSLSocketFactory extends SSLSocketFactory {
 						throw new UnsupportedOperationException();
 					}
 
-					public Object getValue(String arg0) {
+					public Object getValue(String name) {
 						throw new UnsupportedOperationException();
 					}
 
@@ -212,7 +212,7 @@ public class PagarMeSSLSocketFactory extends SSLSocketFactory {
 						throw new UnsupportedOperationException();
 					}
 
-					public void putValue(String arg0, Object arg1) {
+					public void putValue(String name, Object value) {
 						throw new UnsupportedOperationException();
 					}
 
@@ -234,8 +234,7 @@ public class PagarMeSSLSocketFactory extends SSLSocketFactory {
 				return false;
 			}
 
-			public void removeHandshakeCompletedListener(
-					HandshakeCompletedListener arg0) {
+			public void removeHandshakeCompletedListener(HandshakeCompletedListener listener) {
 			}
 
 			public void setEnableSessionCreation(boolean flag) {
